@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type power struct {
 	attack int
@@ -8,9 +11,9 @@ type power struct {
 }
 
 type location struct {
-	x float32
-	y float32
-	z float32
+	x float64
+	y float64
+	z float64
 }
 
 type nonPlayerCharacter struct {
@@ -56,13 +59,28 @@ func (g gun) Wield() bool {
 }
 
 func (c chair) Wield() bool {
-	fmt.Println("You've wielded a chair!")
+	fmt.Println("You've wielded a chair! You having a bad day?")
 	return true
 }
 
 func wielder (w weapon) bool {
 	fmt.Println("Wielding...")
 	return w.Wield()
+}
+
+func (loc location) String() string {
+	return fmt.Sprintf("(%f,%f,%f)", loc.x, loc.y, loc.z)
+}
+
+func (loc location) euclideanDistance(target location) float64 {
+	return math.Sqrt(
+		(loc.x-target.x) * (loc.x-target.x) +
+			(loc.y-target.y) * (loc.y-target.y) +
+			(loc.z-target.z) * (loc.z-target.z))
+}
+
+func (npc nonPlayerCharacter) distanceTo(target nonPlayerCharacter) float64 {
+	return npc.loc.euclideanDistance(target.loc)
 }
 
 func main() {
@@ -89,8 +107,10 @@ func main() {
 
 	sword1 := sword{attacker: attacker{attackpower: 1, dmgbonus: 5}, twohanded: true}
 	gun1 := gun{attacker{attackpower: 10, dmgbonus: 20}, 11}
-	fmt.Printf("Weapons: sword: %v, gun: %v\n", sword1, gun1)
+	chair1 := chair{3, true}
+	fmt.Printf("Weapons: sword: %v, gun: %v, chair: %v\n", sword1, gun1, chair1)
 	wielder(sword1)
 	wielder(gun1)
-
+	wielder(chair1)
+	fmt.Printf("Npc %v is %f units away from Npc %v\n", demon, demon.distanceTo(anotherDemon), anotherDemon)
 }
